@@ -31,7 +31,6 @@ build_script:
   - for /f "delims=" %%a in ('dir /s /b "%PKGGLOB%"') do set "PKGPATH=%%a"
   - echo "%PKGPATH%"
   # package info for debugging
-  - conda index "%CONDA_INSTALL_LOCN%\conda-bld\win-64"
   - conda search "%PKGPATH%" --info || exit 1
 
 test_script:
