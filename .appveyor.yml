@@ -28,7 +28,7 @@ build_script:
   - set PKGGLOB="%CONDA_INSTALL_LOCN%\conda-bld\win-64\*.tar.bz2"
   - dir /b "%PKGGLOB%" || exit 1
   # get path to package as a variable
-  - for /f "delims=" %%a in ('dir /b "%PKGGLOB%"') do set "PKGPATH=%%a"
+  - for /f "delims=" %%a in ('dir /s /b "%PKGGLOB%"') do set "PKGPATH=%%a"
   - echo "%PKGPATH%"
   # package info for debugging
   - conda index "%CONDA_INSTALL_LOCN%\conda-bld\win-64"
