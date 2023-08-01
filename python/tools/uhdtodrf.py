@@ -841,14 +841,7 @@ class Recorder(object):
             ) or (st is not None and et <= st):
                 raise ValueError("End time is before launch time!")
 
-        # if op.realtime:
-        #     r = gr.enable_realtime_scheduling()
-        #
-        #     if op.verbose:
-        #         if r == gr.RT_OK:
-        #             print("Realtime scheduling enabled")
-        #         else:
-        #             print("Note: failed to enable realtime scheduling")
+  
 
         # create data directory so ringbuffer code can be started while waiting
         # to launch
@@ -1088,10 +1081,9 @@ class Recorder(object):
         try:
             # Start the buffering thread
             read_th = threading.Thread(
-                target=self.buff_func, args=(stream, radfifo, end_rec, start_sample)
+                target=self.buff_func, args=(stream, radfifo, end_rec, start_sample), name="Read Thread"
             )
             read_th.start()
-            read_th.setName("Read Thread")
             # now that we're ready to accept samples, send the start streaming command
             stream.issue_stream_cmd(stream_cmd)
             while not end_rec.is_set():
@@ -1106,20 +1098,18 @@ class Recorder(object):
                     d1 = radfifo.get()
                     tmp = self.bufflist[d1[0]][:, : self.pntlist[d1[0]]]
                     cur_pt = threading.Thread(
-                        target=self.procsamples, args=(write_fifo, tmp, d1[1])
+                        target=self.procsamples, args=(write_fifo, tmp, d1[1]), name="Proc{0}".format(proc_count)
                     )
                     cur_pt.start()
-                    cur_pt.setName("Proc{0}".format(proc_count))
                     proc_threads.append(cur_pt)
                     proc_count += 1
                 if proc_threads:
                     if not proc_threads[0].is_alive():
                         write_data = write_fifo.get()
                         cur_wt = threading.Thread(
-                            target=write_samples, args=(drfObjs, write_data)
+                            target=write_samples, args=(drfObjs, write_data), name="Save to drf"
                         )
                         cur_wt.start()
-                        cur_wt.setName("Save to drf")
                         write_threads.append(cur_wt)
                         proc_threads.pop(0)
                 if write_threads:
@@ -1142,10 +1132,9 @@ class Recorder(object):
                     d1 = radfifo.get()
                     tmp = self.bufflist[d1[0]][:, : self.pntlist[d1[0]]]
                     cur_pt = threading.Thread(
-                        target=self.procsamples, args=(write_fifo, tmp, d1[1])
+                        target=self.procsamples, args=(write_fifo, tmp, d1[1]),name="Proc{0}".format(proc_count)
                     )
                     cur_pt.start()
-                    cur_pt.setName("Proc{0}".format(proc_count))
                     proc_threads.append(cur_pt)
                     proc_count += 1
                 if proc_threads:
@@ -1153,10 +1142,9 @@ class Recorder(object):
                         write_data = write_fifo.get()
 
                         cur_wt = threading.Thread(
-                            target=write_samples, args=(drfObjs, write_data)
+                            target=write_samples, args=(drfObjs, write_data), name="Save to drf"
                         )
                         cur_wt.start()
-                        cur_wt.setName("Save to drf")
                         write_threads.append(cur_wt)
                         proc_threads.pop(0)
                 if write_threads:
